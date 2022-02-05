@@ -1,4 +1,4 @@
-const builderRole = require('roles.builder.module')
+const builderRole = require('builder')
 const spawner = require('spawner')
 
 var isInit = false;
