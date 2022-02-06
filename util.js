@@ -30,9 +30,7 @@ module.exports = {
 					    const manager = new EnergyManager(room)
 					    manager.release(Memory.creeps[name].currentSpot)
 					}
-
 				}
-				
 				// Delete creep memory.
 				delete Memory.creeps[name];
 				console.log('Clearing non-existing creep memory:', name);

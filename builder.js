@@ -1,5 +1,7 @@
-module.exports = {
-    run: (creep) => {
+const EnergyManager = require('energy-manager')
+const util = require('util')
+var roleBuilder = {
+	run: function(creep) {
 		
 		const energyManager = new EnergyManager(creep.room);
 				
@@ -31,6 +33,7 @@ module.exports = {
 			        console.log("creep could not find free energy spot");
 			    } else {
 			        creep.memory.currentSpot = nextSpot;
+					creep.moveTo(util.findFirstSpawn().pos);
 			    }
 
 			} else {
@@ -48,3 +51,5 @@ module.exports = {
 	    }
     }
 }
+
+module.exports = roleBuilder

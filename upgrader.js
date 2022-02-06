@@ -27,6 +27,7 @@ var roleUpgrader = {
 			    console.log("creep " + creep.name + " got spot " + JSON.stringify(nextSpot) + " from energy manager")
 			    if(nextSpot == null) {
 			        console.log("creep could not find free energy spot");
+					creep.moveTo(util.findFirstSpawn().pos);
 			    } else {
 			        creep.memory.currentSpot = nextSpot;
 			    }
