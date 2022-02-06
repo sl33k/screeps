@@ -11,7 +11,11 @@ const EnergyManager = require('energy-manager')
 var isInit = false;
 
 module.exports.loop = () => {
-    const s = util.findFirstSpawn();
+	
+	// Collect garbage first to ensure rest of code executes as expected
+	util.collectGarbage();
+	
+	const s = util.findFirstSpawn();
     if (!isInit) {
         for (const room in Game.rooms) {
             room.memory['energyManager'] = new EnergyManager(room)
@@ -21,13 +25,6 @@ module.exports.loop = () => {
         // TODO: initial spawning
         /* update init flag */
         isInit = true;
-    }
-
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-            console.log('Clearing non-existing creep memory:', name);
-        }
     }
 
     // spawner loop

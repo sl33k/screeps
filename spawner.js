@@ -2,7 +2,7 @@ const _ = require('lodash')
 
 function spawnAny(spawn, prefix, bodyParts) {
     const name = prefix + Game.time
-    spawn.spawnCreep(bodyParts, name, {memory: {role: prefix}});
+    spawn.spawnCreep(bodyParts, name, {memory: {role: prefix, roomref: spawn.room}});
 }
 
 function spawnHarvester (spawn, bodyParts = [WORK, CARRY, MOVE]) {
