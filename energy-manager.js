@@ -29,8 +29,6 @@ class EnergySourceManager {
      */
     constructor(room) {
         this.room = room;
-
-
     }
 
     /**

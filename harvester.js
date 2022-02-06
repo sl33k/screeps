@@ -1,7 +1,8 @@
 const EnergyManager = require('energy-manager')
+const util = require('util')
 var roleHarvester = {
     run: function(creep) {
-       const energyManager = new EnergyManager(creep.room)
+        const energyManager = new EnergyManager(creep.room)
 		/** 
 		 * harvester "state machine"
 		 * harvesting == true: The harvester is currently 
@@ -53,6 +54,8 @@ var roleHarvester = {
                 if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
                 }
+            } else {
+                creep.moveTo(util.findFirstSpawn().pos)
             }
         }
 		
