@@ -1,4 +1,5 @@
 const EnergyManager = require('energy-manager')
+const util = require('util')
 var roleUpgrader = {
     run: function(creep) {
         const energyManager = new EnergyManager(creep.room)
