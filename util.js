@@ -1,3 +1,4 @@
+const _ = require('lodash')
 module.exports = {
 	
 	/**
@@ -29,5 +30,13 @@ module.exports = {
 				console.log('Clearing non-existing creep memory:', name);
 			}
 		}
-	}
+	},
+    freePositionsAroundObject: (object, offset=1) => {
+        const x = object.pos.x
+        const y = object.pos.y
+        const room = object.room
+        const ent = room.lookAtArea(y-offset, x-offset, y+offset, x+offset, true);
+        const free_ent = _.filter(ent, (e) => e.type == 'terrain' && e.terrain != 'wall')
+        return _.map(free_ent, (e) => RoomPosition(e.x, e.y, room))
+    }
 }
