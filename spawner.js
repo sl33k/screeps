@@ -24,7 +24,7 @@ module.exports = {
         }
         var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
 
-        if(upgraders.length < 2) {
+        if(upgraders.length < 5) {
             spawnUpgrader(spawn)
         }
     }

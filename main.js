@@ -28,11 +28,15 @@ module.exports.loop = () => {
 
     for (const name in Game.creeps) {
         const creep = Game.creeps[name];
-        console.log(creep);
+
         if(creep.memory.role == 'harvester') {
             harvesterRole.run(creep);
         } else if (creep.memory.role == 'upgrader') {
             upgraderRole.run(creep);
         }
+    }
+    
+    if(Game.cpu.bucket >= 10000) {
+        Game.cpu.generatePixel();
     }
 }
