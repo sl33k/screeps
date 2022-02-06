@@ -6,12 +6,16 @@ const defenderRole = require('defender');
 const transporterRole = require('transporter');
 const spawner = require('spawner')
 const util = require('util')
+const EnergyManager = require('energy-manager')
 
 var isInit = false;
 
 module.exports.loop = () => {
     const s = util.findFirstSpawn();
     if (!isInit) {
+        for (const room in Game.rooms) {
+            room.memory['energyManager'] = new EnergyManager(room)
+        }
         /* spawn initial units */
         spawner.spawnHarvester(s);
         // TODO: initial spawning
@@ -28,6 +32,11 @@ module.exports.loop = () => {
 
     // spawner loop
     spawner.loop(s);
+
+    // energy manager loop
+    for (const room in Game.rooms) {
+        room.memory.energyManager.update();
+    }
 
     for (const name in Game.creeps) {
         const creep = Game.creeps[name];
