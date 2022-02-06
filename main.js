@@ -1,6 +1,9 @@
 const builderRole = require('builder')
 const harvesterRole = require('harvester')
 const upgraderRole = require('upgrader');
+const cleanerRole = require('cleaner');
+const defenderRole = require('defender');
+const transporterRole = require('transporter');
 const spawner = require('spawner')
 const util = require('util')
 
@@ -33,7 +36,15 @@ module.exports.loop = () => {
             harvesterRole.run(creep);
         } else if (creep.memory.role == 'upgrader') {
             upgraderRole.run(creep);
-        }
+        } else if (creep.memory.role == 'builder') {
+			builderRole.run(creep);
+		} else if (creep.memory.role == 'defender') {
+			defenderRole.run(creep);
+		} else if (creep.memory.role == 'transporter') {
+			transporterRole.run(creep);
+		} else if (creep.memory.role == 'cleaner') {
+			cleanerRole.run(creep);
+		} 
     }
     
     if(Game.cpu.bucket >= 10000) {
