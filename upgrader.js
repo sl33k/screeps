@@ -8,6 +8,11 @@ var roleUpgrader = {
         }
         if(!creep.memory.upgrading && creep.store.getFreeCapacity() == 0) {
             creep.memory.upgrading = true;
+            // release spot to energy manager
+            if(creep.memory.currentSpot) {
+                energyManager.release(creep.memory.currentSpot)
+                creep.memory.currentSpot = null
+            }
             creep.say('⚡ upgrade');
         }
 
