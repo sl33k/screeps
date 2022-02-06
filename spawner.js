@@ -2,7 +2,13 @@ const _ = require('lodash')
 
 function spawnAny(spawn, prefix, bodyParts) {
     const name = prefix + Game.time
-    spawn.spawnCreep(bodyParts, name, {memory: {role: prefix, roomref: spawn.room}});
+    if(spawn.spawnCreep(bodyParts, name, {memory: {role: prefix, roomName: spawn.room.name}}) == OK) {
+        console.log("spawned creep of type " + prefix);   
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 function spawnHarvester (spawn, bodyParts = [WORK, CARRY, MOVE]) {
@@ -22,22 +28,24 @@ module.exports = {
     spawnUpgrader: spawnUpgrader,
 	spawnBuilder: spawnBuilder,
     loop: (spawn) => {
-
         var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
 
         if(harvesters.length < 2) {
-            spawnHarvester(spawn);
+            if(!spawnHarvester(spawn))
+                return;
         }
         var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
 
         if(upgraders.length < 5) {
-            spawnUpgrader(spawn);
+            if(!spawnUpgrader(spawn))
+                return;
         }
 		
 		var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
 
         if(builders.length < 1) {
-            spawnBuilder(spawn);
+            if(!spawnBuilder(spawn))
+                return;
         }
     }
 }
