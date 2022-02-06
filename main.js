@@ -8,31 +8,19 @@ const spawner = require('spawner')
 const util = require('util')
 const EnergyManager = require('energy-manager')
 
-var isInit = false;
-
 module.exports.loop = () => {
-	
+	const s = util.findFirstSpawn();
 	// Collect garbage first to ensure rest of code executes as expected
 	util.collectGarbage();
-	
-	const s = util.findFirstSpawn();
-    if (!isInit) {
-        for (const room in Game.rooms) {
-            room.memory['energyManager'] = new EnergyManager(room)
-        }
-        /* spawn initial units */
-        spawner.spawnHarvester(s);
-        // TODO: initial spawning
-        /* update init flag */
-        isInit = true;
-    }
 
     // spawner loop
     spawner.loop(s);
 
     // energy manager loop
-    for (const room in Game.rooms) {
-        room.memory.energyManager.update();
+    for (const roomName in Game.rooms) {
+        const room = Game.rooms[roomName];
+        manager = new EnergyManager(room);
+        manager.update();
     }
 
     for (const name in Game.creeps) {

@@ -1,7 +1,7 @@
-
+const EnergyManager = require('energy-manager')
 var roleHarvester = {
     run: function(creep) {
-        
+       const energyManager = new EnergyManager(creep.room)
 		/** 
 		 * harvester "state machine"
 		 * harvesting == true: The harvester is currently 
@@ -14,15 +14,31 @@ var roleHarvester = {
             creep.memory.harvesting = true;
 	    } else if(creep.memory.harvesting && creep.store.getFreeCapacity() == 0) {
 	        creep.memory.harvesting = false;
-			creep.room.memory.energyManager.release(creep.memory.currentSpot);
+            energyManager.release(creep.memory.currentSpot);
 			creep.memory.currentSpot = null;
 	    }
 		
 		if (creep.memory.harvesting){
-			if (creep.memory.currentSpot == null){
-				creep.memory.currentSpot = creep.room.memory.energyManager.get();				
-			} else if(creep.harvest(creep.memory.currentSource.source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.memory.currentSource.harvest_position, {visualizePathStyle: {stroke: '#ffaa00'}});
+			if (creep.memory.currentSpot == null) {
+			    const nextSpot = energyManager.get();
+			    console.log("creep " + creep.name + " got spot " + JSON.stringify(nextSpot) + " from energy manager")
+			    if(nextSpot == null) {
+			        console.log("creep could not find free energy spot");
+			    } else {
+			        creep.memory.currentSpot = nextSpot;
+			    }
+
+			} else {
+			    const source = Game.getObjectById(creep.memory.currentSpot.source);
+			    const err = creep.harvest(source)
+			    if(err == ERR_NOT_IN_RANGE) {
+			        const target = creep.memory.currentSpot.position
+			        console.log("failed harvest cause out-of-range, moving to " + JSON.stringify(target))
+			        const err = creep.moveTo(new RoomPosition(target.x, target.y, target.roomName),{visualizePathStyle: {stroke: '#ffaa00'}})
+			        if(err != OK) {
+			            console.log("failed moveTo due to error " + err)
+			        }
+			    }
             }			
 		}
 		

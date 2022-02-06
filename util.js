@@ -1,4 +1,6 @@
 const _ = require('lodash')
+const EnergyManager = require('energy-manager')
+
 module.exports = {
 	
 	/**
@@ -22,7 +24,13 @@ module.exports = {
 				// Check whether the dead creep has a harvesting spot reserved
 				if (Memory.creeps[name].currentSpot != null){
 					// Grab the corresponding room object and energy manager, release the spot
-					Memory.creeps[name].roomRef.memory.energyManager.release(Memory.creeps[name].currentSpot);
+					const room = Game.rooms[Memory.creeps[name].roomName];
+					if(room) {
+					    console.log("cleaning up spot " + Memory.creeps[name].currentSpot + " in room " + room)
+					    const manager = new EnergyManager(room)
+					    manager.release(Memory.creeps[name].currentSpot)
+					}
+
 				}
 				
 				// Delete creep memory.
@@ -32,11 +40,14 @@ module.exports = {
 		}
 	},
     freePositionsAroundObject: (object, offset=1) => {
+       // console.log("find free pos around: " + object)
         const x = object.pos.x
         const y = object.pos.y
         const room = object.room
         const ent = room.lookAtArea(y-offset, x-offset, y+offset, x+offset, true);
+       //  console.log("entities around " + object + " are " + _.map(ent, (e) => e.type))
         const free_ent = _.filter(ent, (e) => e.type == 'terrain' && e.terrain != 'wall')
-        return _.map(free_ent, (e) => RoomPosition(e.x, e.y, room))
+        // console.log("free entities around " + object + " are " + _.map(free_ent, e => e.type) + " (full: " + JSON.stringify(free_ent))
+        return _.map(free_ent, (e) => new RoomPosition(e.x, e.y, room.name))
     }
 }
