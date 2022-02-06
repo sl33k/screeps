@@ -80,7 +80,11 @@ class EnergySourceManager {
      * @param {EnergyHarvestSpot} spot The spot to be released
      */
     release(spot) {
-        _.remove(this.room.memory.used_harvest_spots, (s) => equalSpot(s, spot))
+        console.log("releasing spot " + JSON.stringify(spot))
+        var used = this.room.memory.used_harvest_spots
+        const idx = used.findIndex(s => equalSpot(s, spot))
+        used.splice(idx, 1)
+        this.room.memory.used_harvest_spots = used
     }
 }
 
