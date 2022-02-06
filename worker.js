@@ -98,12 +98,12 @@ function checkForTombstones(creep) {
 
 function findEnergyContainer(creep) {
 	const targets = null;
-	// TODO: Filter out whichever is closest, instead of grabbing index 1
+	// TODO: Filter out whichever is closest, instead of grabbing index 0
 	targets = creep.room.find(FIND_STRUCTURES, {
 		filter: (structure) => {
 		return ((structure.structureType == STRUCTURE_CONTAINER || 
 				structure.structureType == STRUCTURE_STORAGE) &&
-			structure.store.getCapacity(RESOURCE_ENERGY) > 0);
+			structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0);
 		}
 	});
 	
@@ -126,15 +126,30 @@ function performWork(creep) {
 			case 'Extensions':
 			case 'Towers':
 			case 'Filling':	
-				// creep.transfer(target) or something
+				const err = creep.transfer(Game.getObjectById(creep.memory.target), RESOURCE_ENERGY);
+				if (err == ERR_NOT_IN_RANGE) {
+					creep.moveTo(Game.getObjectById(creep.memory.target))					
+				} else {
+					console.error("Unexpected error in worker.js TRANSFER JOB:" + err);
+				}
 				break;
 				
 			case 'Repair':
-				// creep.repair(target) or something
+				const err = creep.repair(Game.getObjectById(creep.memory.target));
+				if (err == ERR_NOT_IN_RANGE) {
+					creep.moveTo(Game.getObjectById(creep.memory.target))					
+				} else {
+					console.error("Unexpected error in worker.js REPAIR JOB:" + err);
+				}
 				break;	
 				
 			case 'Building':
-				// creep.build(target) or something
+				const err = creep.build(Game.getObjectById(creep.memory.target));
+				if (err == ERR_NOT_IN_RANGE) {
+					creep.moveTo(Game.getObjectById(creep.memory.target))					
+				} else {
+					console.error("Unexpected error in worker.js BUILD JOB:" + err);
+				}
 				break;
 				
 			case 'Cleaning':
@@ -142,14 +157,19 @@ function performWork(creep) {
 				break;
 				
 			case 'Upgrading':
-				// creep.upgradeController(target) or something
+				const err = creep.upgradeController(Game.getObjectById(creep.memory.target));
+				if (err == ERR_NOT_IN_RANGE) {
+					creep.moveTo(Game.getObjectById(creep.memory.target))					
+				} else {
+					console.error("Unexpected error in worker.js UPGRADE JOB:" + err);
+				}
 				break;
-				
 				
 			default:
 				console.error("Error occured in worker.js performWork - switch/case went into default");
 		}
 }
+
 
 /**
  * Runs on a creep that already has energy
@@ -163,8 +183,11 @@ function performWork(creep) {
  * plundering energy storages - as apparently there is no urgend need.
  */
 function findJob(creep, preliminary = false) {
-	// TODO: add memory at target that a worker is already servicing it?
+	// TODO: add memory at target capturing that a worker is already servicing it?
 	// otherwise, everyone will try to do the same job, no?
+	// E.g., keep track of "currentBuilders", "currentHarvesters", "currentUpgraders" etc.
+	// in memory - reset at every loop in main.js? 
+	// Then read it here and make sure stuff is balanced a little
 	
 	jobsToCheck.forEach((job, i) => {
 		
@@ -192,7 +215,7 @@ function findJob(creep, preliminary = false) {
 			case 'Extensions':
 				targets = creep.room.find(FIND_STRUCTURES, {
 					filter: (structure) => {
-					return (structure.structureType == STRUCTURE_EXTENSION || 
+					return (structure.structureType == STRUCTURE_EXTENSION) && 
 							structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
 					}
 				});
@@ -257,14 +280,31 @@ function findJob(creep, preliminary = false) {
 }
 
 
+// TODO: go through this and think a bit about the various flags/states 
+// There's definitely some "better safe than sorry" re-setting and if() here.
 var roleWorker = {
 	run: function(creep) {
 		
-		if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+		if (!creep.memory.harvesting && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
+			// Starting energy harvesting. Reset job vars and set harvesting flag:
+			creep.memory.harvesting = true;
+			creep.memory.jobType = null;
+			creep.memory.target = null;
+		}
+		
+		if (creep.memory.harvesting && creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+			// Done harvesting, reset all flags and vars
+			creep.memory.harvesting = false;
+			creep.memory.target = null;
+			creep.memory.jobType = null;
+			creep.memory.containerHarvesting = null;
+		} else if (creep.memory.harvesting && creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
 			// Ensure this stays at null while we are trying to harvest energy
 			creep.memory.jobType == null;
 			harvestEnergy(creep);
-		} else if (creep.memory.target == null || creep.memory.jobType == null) {
+		}
+		
+		if (!creep.memory.harvesting && (creep.memory.target == null || creep.memory.jobType == null)) {
 			
 			if (creep.memory.target != null) {
 				// Energy of this creep was obtained via cleaning or energy storage. Have to reset target.
@@ -278,9 +318,10 @@ var roleWorker = {
 			}
 			
 			findJob(creep);
-		} else if (creep.memory.target != null && creep.memory.jobType != null) {
+		} else if (!creep.memory.harvesting && creep.memory.target != null && creep.memory.jobType != null) {
 			performWork(creep);
-		}
+		} else if (!creep.memory.harvesting) {
+			console.error("Worker.js encountered unexpected combination of flags/states. No recovery...");
     }
 };
 
