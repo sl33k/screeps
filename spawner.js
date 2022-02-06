@@ -1,8 +1,10 @@
 const _ = require('lodash')
 
+// TODO: add capability of specifying custom memory for this function spawnAny(spawn, prefix, bodyparts, memory = null)
 function spawnAny(spawn, prefix, bodyParts) {
     const name = prefix + Game.time
-    if(spawn.spawnCreep(bodyParts, name, {memory: {role: prefix, roomName: spawn.room.name}}) == OK) {
+	
+    if(spawn.spawnCreep(bodyParts, name, {memory: {role: prefix, roomName: spawn.room.name, target: null}}) == OK) {
         console.log("spawned creep of type " + prefix);   
         return true;
     }
@@ -21,6 +23,10 @@ function spawnUpgrader (spawn, bodyParts = [WORK, CARRY, MOVE]) {
 
 function spawnBuilder (spawn, bodyParts = [WORK, CARRY, MOVE]) {
     spawnAny(spawn, 'builder', bodyParts);
+}
+
+function spawnWorker (spawn, bodyParts = [WORK, WORK, CARRY, MOVE, MOVE]) {
+	spawnAny(spawn, 'worker', bodyParts);
 }
 
 module.exports = {

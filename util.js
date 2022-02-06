@@ -47,5 +47,25 @@ module.exports = {
         const free_ent = _.filter(ent, (e) => e.type == 'terrain' && e.terrain != 'wall')
         // console.log("free entities around " + object + " are " + _.map(free_ent, e => e.type) + " (full: " + JSON.stringify(free_ent))
         return _.map(free_ent, (e) => new RoomPosition(e.x, e.y, room.name))
-    }
+    },
+	clamp = (num, min, max) => Math.min(Math.max(num, min), max),
+	calculateCreepSpeed: (creep) => {
+		/**
+         * Each body part has its own physical weight: the more parts a creep bears, 
+		 * the more difficult it is for it to move. Each body part (except MOVE) 
+		 * generates fatigue points when the creep moves: 1 point per body part on roads, 
+		 * 2 on plain land, 10 on swamp. Each MOVE body part decreases fatigue points 
+		 * by 2 per tick. The creep cannot move when its fatigue is greater than zero.
+		 * See https://docs.screeps.com/creeps.html
+		 */
+		 
+		// This function assumes movement on plain land
+		 
+		const speed = 0;
+		for (var part in creep.body) {
+			speed = part == MOVE ? speed + 2 : speed;
+		}
+		return speed/creep.body.length;
+	}
+	
 }

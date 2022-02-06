@@ -1,5 +1,6 @@
 const EnergyManager = require('energy-manager')
 const util = require('util')
+
 var roleBuilder = {
 	run: function(creep) {
 		
@@ -52,4 +53,4 @@ var roleBuilder = {
     }
 }
 
-module.exports = roleBuilder
+module.exports = roleBuilder;
