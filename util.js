@@ -1,3 +1,4 @@
 module.exports.findFirstSpawn = () => {
-    return Game.spawns.values[0];
+    for (const i in Game.spawns)
+        return Game.spawns[i];
 }
