@@ -1,4 +1,5 @@
 const builderRole = require('builder')
+const harvesterRole = require('harvester')
 const spawner = require('spawner')
 const util = require('util')
 
@@ -14,5 +15,13 @@ module.exports.loop = () => {
         isInit = true;
     }
 
-    // TODO: game logic
+    for (creep in Game.creeps.values) {
+        if(creep.memory.role == 'harvester') {
+            harvesterRole.run(creep);
+        } else if (creep.memory.role == 'upgrader') {
+            // TODO:
+        }
+
+    }
+
 }
