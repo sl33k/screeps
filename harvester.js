@@ -2,7 +2,7 @@ const EnergyManager = require('energy-manager')
 const util = require('util')
 var roleHarvester = {
     run: function(creep) {
-        const energyManager = new EnergyManager(creep.room)
+        const energyManager = new EnergyManager(creep.room);
 		/** 
 		 * harvester "state machine"
 		 * harvesting == true: The harvester is currently 
