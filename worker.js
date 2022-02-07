@@ -123,78 +123,86 @@ function findEnergyContainer(creep) {
 function performWork(creep) {
 
 	const targetObject = Game.getObjectById(creep.memory.target);
-	switch (creep.memory.jobType) {
-		
-		// The following 4 share the same "action function"
-		case 'Spawners':
-		case 'Extensions':
-		case 'Towers':
-		case 'Filling':	
-			const transferError = creep.transfer(targetObject, RESOURCE_ENERGY);
-			if (transferError == ERR_NOT_IN_RANGE) {
-				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}})					
-			} else if (transferError == ERR_FULL) {
-				// This job is done - target is full
-				creep.memory.target = null;
-				creep.memory.jobType = null;
-			} else if (transferError != OK) {
-				console.log("[ERROR] " +"Unexpected error in worker.js TRANSFER JOB:" + transferError);
-			}
-			break;
+	if (targetObject == null)
+	{
+		// Not sure what happened, construction finished, object got destroyed etc.
+		// Just look for a new job I guess
+		creep.memory.jobType = null;
+		creep.memory.target = null;
+	} else {
+		switch (creep.memory.jobType) {
 			
-		case 'Repair':
-			const repairError = creep.repair(targetObject);
-			if (repairError == ERR_NOT_IN_RANGE) {
-				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}})					
-			} else if (repairError != OK) {
-				console.log("[ERROR] " +"Unexpected error in worker.js REPAIR JOB:" + repairError);
-			}
-			if (targetObject.hits == targetObject.hitsMax) {
-				// This job is done - target has max health
-				creep.memory.target = null;
-				creep.memory.jobType = null;				
-			}
-			break;	
-			
-		case 'Building':
-			// Temporary fix to ensure creeps move closer to target
-			// TODO: improve
-			if (creep.pos.getRangeTo(targetObject) <= 1) {
-				const buildError = creep.build(targetObject);
-				if (buildError == ERR_NOT_IN_RANGE) {
-					console.log("[ERROR] " +"Distance of building creep to site is too large, but why? Error:" + buildError);				
-				} else if (buildError == ERR_INVALID_TARGET && targetObject != null && targetObject.progress < targetObject.progressTotal) {
-					// This happens if another unit is on the constructionsite and is therefore preventing
-					// This consutrction from finishing
-					// Guess let's just wait?
-				} else if (buildError != OK) {
-					// TODO:
-					console.log("[ERROR] " +"CRITICAL unexpected error in worker.js BUILD JOB:" + buildError);
-					console.log("[ERROR] THIS MUST BE FIXED IN CODE ASAP.");
-					console.log("[ERROR] TEMPORARY FIX: RESET JOB FOR CREEP " + creep.name);
+			// The following 4 share the same "action function"
+			case 'Spawners':
+			case 'Extensions':
+			case 'Towers':
+			case 'Filling':	
+				const transferError = creep.transfer(targetObject, RESOURCE_ENERGY);
+				if (transferError == ERR_NOT_IN_RANGE) {
+					creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}})					
+				} else if (transferError == ERR_FULL) {
+					// This job is done - target is full
 					creep.memory.target = null;
-					creep.memory.jobType = null;	
-				} 
-			} else {
-				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}});	 
-			}
-			break;
-			
-		case 'Cleaning':
-			// never used.
-			break;
-			
-		case 'Upgrading':
-			const upgradeError = creep.upgradeController(targetObject);
-			if (upgradeError == ERR_NOT_IN_RANGE) {
-				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}})					
-			} else if (upgradeError != OK){
-				console.log("[ERROR] " +"Unexpected error in worker.js UPGRADE JOB:" + upgradeError);
-			}
-			break;
-			
-		default:
-			console.log("[ERROR] " +"Error occured in worker.js performWork - switch/case went into default");
+					creep.memory.jobType = null;
+				} else if (transferError != OK) {
+					console.log("[ERROR] " +"Unexpected error in worker.js TRANSFER JOB:" + transferError);
+				}
+				break;
+				
+			case 'Repair':
+				const repairError = creep.repair(targetObject);
+				if (repairError == ERR_NOT_IN_RANGE) {
+					creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}})					
+				} else if (repairError != OK) {
+					console.log("[ERROR] " +"Unexpected error in worker.js REPAIR JOB:" + repairError);
+				}
+				if (targetObject.hits == targetObject.hitsMax) {
+					// This job is done - target has max health
+					creep.memory.target = null;
+					creep.memory.jobType = null;				
+				}
+				break;	
+				
+			case 'Building':
+				// Temporary fix to ensure creeps move closer to target
+				// TODO: improve
+				if (creep.pos.getRangeTo(targetObject) <= 1) {
+					const buildError = creep.build(targetObject);
+					if (buildError == ERR_NOT_IN_RANGE) {
+						console.log("[ERROR] " +"Distance of building creep to site is too large, but why? Error:" + buildError);				
+					} else if (buildError == ERR_INVALID_TARGET && targetObject != null && targetObject.progress < targetObject.progressTotal) {
+						// This happens if another unit is on the constructionsite and is therefore preventing
+						// This consutrction from finishing
+						// Guess let's just wait?
+					} else if (buildError != OK) {
+						// TODO:
+						console.log("[ERROR] " +"CRITICAL unexpected error in worker.js BUILD JOB:" + buildError);
+						console.log("[ERROR] THIS MUST BE FIXED IN CODE ASAP.");
+						console.log("[ERROR] TEMPORARY FIX: RESET JOB FOR CREEP " + creep.name);
+						creep.memory.target = null;
+						creep.memory.jobType = null;	
+					} 
+				} else {
+					creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}});	 
+				}
+				break;
+				
+			case 'Cleaning':
+				// never used.
+				break;
+				
+			case 'Upgrading':
+				const upgradeError = creep.upgradeController(targetObject);
+				if (upgradeError == ERR_NOT_IN_RANGE) {
+					creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}})					
+				} else if (upgradeError != OK){
+					console.log("[ERROR] " +"Unexpected error in worker.js UPGRADE JOB:" + upgradeError);
+				}
+				break;
+				
+			default:
+				console.log("[ERROR] " +"Error occured in worker.js performWork - switch/case went into default");
+		}
 	}
 }
 
