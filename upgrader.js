@@ -25,10 +25,10 @@ var roleUpgrader = {
         else {
 			if (creep.memory.currentSpot == null) {
 			    const nextSpot = energyManager.get();
-			    console.log("creep " + creep.name + " got spot " + JSON.stringify(nextSpot) + " from energy manager")
+			    //console.log("creep " + creep.name + " got spot " + JSON.stringify(nextSpot) + " from energy manager")
 			    if(nextSpot == null) {
-			        console.log("creep could not find free energy spot");
-					creep.moveTo(util.findFirstSpawn().pos);
+			        //console.log("creep could not find free energy spot");
+					creep.moveTo(util.findFirstSpawn().pos, {visualizePathStyle: {stroke: '#ffffff'}});
 			    } else {
 			        creep.memory.currentSpot = nextSpot;
 			    }
@@ -38,10 +38,10 @@ var roleUpgrader = {
 			    const err = creep.harvest(source)
 			    if(err == ERR_NOT_IN_RANGE) {
 			        const target = creep.memory.currentSpot.position
-			        console.log("failed harvest cause out-of-range, moving to " + JSON.stringify(target))
+			        //console.log("failed harvest cause out-of-range, moving to " + JSON.stringify(target))
 			        const err = creep.moveTo(new RoomPosition(target.x, target.y, target.roomName),{visualizePathStyle: {stroke: '#ffaa00'}})
 			        if(err != OK) {
-			            console.log("failed moveTo due to error " + err)
+			            //console.log("failed moveTo due to error " + err)
 			        }
 			    }
             }

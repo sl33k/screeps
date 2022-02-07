@@ -61,16 +61,16 @@ class EnergySourceManager {
             this.room.memory.used_harvest_spots = [];
         }
         const used = this.room.memory.used_harvest_spots;
-        console.log("get(): free " + JSON.stringify(free))
-        console.log("get(): used " + JSON.stringify(used))
+        //console.log("get(): free " + JSON.stringify(free))
+        //console.log("get(): used " + JSON.stringify(used))
         const actually_free = listSubtract(free, used, (a,b) => equalSpot(a,b) );
-        console.log("get(): actually free: " + JSON.stringify(actually_free))
+        //console.log("get(): actually free: " + JSON.stringify(actually_free))
         if(actually_free.length == 0)
             return null;
         const pick = actually_free[0];
-        console.log("get(): pick " + JSON.stringify(pick))
+        //console.log("get(): pick " + JSON.stringify(pick))
         this.room.memory.used_harvest_spots.push(pick)
-        console.log("get(): updated used " + JSON.stringify(this.room.memory.used_harvest_spots))
+        //console.log("get(): updated used " + JSON.stringify(this.room.memory.used_harvest_spots))
         return pick
     }
 
@@ -78,7 +78,7 @@ class EnergySourceManager {
      * @param {EnergyHarvestSpot} spot The spot to be released
      */
     release(spot) {
-        console.log("releasing spot " + JSON.stringify(spot))
+        //console.log("releasing spot " + JSON.stringify(spot))
         var used = this.room.memory.used_harvest_spots
         const idx = used.findIndex(s => equalSpot(s, spot))
         used.splice(idx, 1)
