@@ -160,7 +160,7 @@ function performWork(creep) {
 			const buildError = creep.build(targetObject);
 			if (buildError == ERR_NOT_IN_RANGE) {
 				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}});					
-			} else if (buildError == ERR_INVALID && targetObject.progress < targetObject.progressTotal) {
+			} else if (buildError == ERR_INVALID_TARGET && targetObject.progress < targetObject.progressTotal) {
 				// This happens if another unit is on the constructionsite and is therefore preventing
 				// This consutrction from finishing
 				// Guess let's just wait?
