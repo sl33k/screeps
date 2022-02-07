@@ -54,14 +54,14 @@ module.exports = {
         }
         var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
 
-        if(upgraders.length < 1) {
+        if(upgraders.length < 2) {
             if(!spawnUpgrader(spawn))
                 return;
         }
 		
 		var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
 
-        if(builders.length < 1) {
+        if(builders.length < 0) {
             if(!spawnBuilder(spawn))
                 return;
         }
