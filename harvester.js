@@ -11,9 +11,9 @@ var roleHarvester = {
 		 * collecting energy and is trying to deposit it somewhere.
 		 
 		*/
-		if(!creep.memory.harvesting && creep.store.getFreeCapacity() > 0) {
+		if(!creep.memory.harvesting && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
             creep.memory.harvesting = true;
-	    } else if(creep.memory.harvesting && creep.store.getFreeCapacity() == 0) {
+	    } else if(creep.memory.harvesting && creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
 	        creep.memory.harvesting = false;
             energyManager.release(creep.memory.currentSpot);
 			creep.memory.currentSpot = null;
