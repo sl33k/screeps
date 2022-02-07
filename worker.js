@@ -157,19 +157,26 @@ function performWork(creep) {
 			break;	
 			
 		case 'Building':
-			const buildError = creep.build(targetObject);
-			if (buildError == ERR_NOT_IN_RANGE) {
-				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}});					
-			} else if (buildError == ERR_INVALID_TARGET && targetObject != null && targetObject.progress < targetObject.progressTotal) {
-				// This happens if another unit is on the constructionsite and is therefore preventing
-				// This consutrction from finishing
-				// Guess let's just wait?
-			} else if (buildError != OK) {
-				console.log("[ERROR] " +"CRITICAL unexpected error in worker.js BUILD JOB:" + buildError);
-				console.log("[ERROR] THIS MUST BE FIXED IN CODE ASAP.");
-				console.log("[ERROR] TEMPORARY FIX: RESET JOB FOR CREEP " + creep.name);
-				creep.memory.target = null;
-				creep.memory.jobType = null;	
+			// Temporary fix to ensure creeps move closer to target
+			// TODO: improve
+			if (creep.pos.getRangeTo(targetObject) <= 1) {
+				const buildError = creep.build(targetObject);
+				if (buildError == ERR_NOT_IN_RANGE) {
+					console.log("[ERROR] " +"Distance of building creep to site is too large, but why? Error:" + buildError);				
+				} else if (buildError == ERR_INVALID_TARGET && targetObject != null && targetObject.progress < targetObject.progressTotal) {
+					// This happens if another unit is on the constructionsite and is therefore preventing
+					// This consutrction from finishing
+					// Guess let's just wait?
+				} else if (buildError != OK) {
+					// TODO:
+					console.log("[ERROR] " +"CRITICAL unexpected error in worker.js BUILD JOB:" + buildError);
+					console.log("[ERROR] THIS MUST BE FIXED IN CODE ASAP.");
+					console.log("[ERROR] TEMPORARY FIX: RESET JOB FOR CREEP " + creep.name);
+					creep.memory.target = null;
+					creep.memory.jobType = null;	
+				} 
+			} else {
+				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}});	 
 			}
 			break;
 			
