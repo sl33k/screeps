@@ -1,6 +1,5 @@
 const EnergyManager = require('energy-manager')
 const util = require('util')
-
 var roleBuilder = {
 	run: function(creep) {
 		
@@ -16,25 +15,42 @@ var roleBuilder = {
 	    }
 
 	    if(creep.memory.building) {
-	        var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-            if(targets.length) {
-                if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
-                }
-            } else {
-                creep.moveTo(util.findFirstSpawn().pos)
-            }
+			var targets = creep.room.find(FIND_STRUCTURES, {
+				filter: (structure) => {
+				return (structure.hits < structure.hitsMax);
+				}
+			});
+			if (targets.length) {
+				// This is a temporary fix to avoid builders from occupying a harvesting spot if possible while repairing
+				// TODO: Improve...
+				if(creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}}) == OK) {
+					creep.repair(targets[0]);
+					}
+			} else { 
+				targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+				if(targets.length) {
+					if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
+						creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+					}
+				} else {
+					creep.moveTo(util.findFirstSpawn().pos, {visualizePathStyle: {stroke: '#ffffff'}})
+				}
+			}
+			
+			 
+        
 	    }
 	    else {
 			
 			if (creep.memory.currentSpot == null) {
 			    const nextSpot = energyManager.get();
-			    console.log("creep " + creep.name + " got spot " + JSON.stringify(nextSpot) + " from energy manager")
+			    //console.log("creep " + creep.name + " got spot " + JSON.stringify(nextSpot) + " from energy manager")
 			    if(nextSpot == null) {
-			        console.log("creep could not find free energy spot");
+			        //console.log("creep could not find free energy spot");
+			        creep.moveTo(util.findFirstSpawn().pos, {visualizePathStyle: {stroke: '#ffffff'}});
 			    } else {
 			        creep.memory.currentSpot = nextSpot;
-					creep.moveTo(util.findFirstSpawn().pos);
+					creep.moveTo(util.findFirstSpawn().pos, {visualizePathStyle: {stroke: '#ffffff'}});
 			    }
 
 			} else {
@@ -42,10 +58,10 @@ var roleBuilder = {
 			    const err = creep.harvest(source)
 			    if(err == ERR_NOT_IN_RANGE) {
 			        const target = creep.memory.currentSpot.position
-			        console.log("failed harvest cause out-of-range, moving to " + JSON.stringify(target))
+			        //console.log("failed harvest cause out-of-range, moving to " + JSON.stringify(target))
 			        const err = creep.moveTo(new RoomPosition(target.x, target.y, target.roomName),{visualizePathStyle: {stroke: '#ffaa00'}})
 			        if(err != OK) {
-			            console.log("failed moveTo due to error " + err)
+			            //console.log("failed moveTo due to error " + err)
 			        }
 			    }
             }			
