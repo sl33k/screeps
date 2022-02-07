@@ -37,6 +37,46 @@ module.exports = {
 			}
 		}
 	},
+	getBodyPartsEnergyCost: (bodyparts) => {
+		var totalcost = 0;
+		for (partIndex in bodyparts) {
+			// See https://screeps.fandom.com/wiki/Creep
+			switch(bodyparts[partIndex]) {
+				case 'WORK':
+					totalcost = totalcost + 100;
+					break;
+				
+				case 'CARRY':
+					totalcost = totalcost + 50;
+					break;
+				
+				case 'MOVE':
+					totalcost = totalcost + 50;
+					break;
+					
+				case 'ATTACK':
+					totalcost = totalcost + 80;
+					break;
+				
+				case 'RANGED_ATTACK':
+					totalcost = totalcost + 150;
+					break;
+					
+				case 'HEAL':
+					totalcost = totalcost + 250;
+					break;
+					
+				case 'TOUGH':
+					totalcost = totalcost + 10;
+					break;
+					
+				case 'CLAIM':
+					totalcost = totalcost + 600;
+					break;
+			}
+		}
+		return totalcost;
+	},
     freePositionsAroundObject: (object, offset=1) => {
        // console.log("find free pos around: " + object)
         const x = object.pos.x

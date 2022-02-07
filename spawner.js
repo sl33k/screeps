@@ -1,13 +1,21 @@
 const _ = require('lodash')
+const util = require('util')
 
-// TODO: add capability of specifying custom memory for this function spawnAny(spawn, prefix, bodyparts, memory = null)
-// TODO: compare energy cost of unit based on bodyparts to the max available enegy in spawner and extensions.
-// 		 Either fail with warning, or default to a simple creep instead automatically
-// 		 This should be done in case an extension gets destroyed e.g. during an attack
+// TODO: Improve the routine that ensures enough max energy is available to spawn a unit, e.g. by taking out a duplicate WORK
+//       or CARRY instead of defaulting to WORK, CARRY, MOVE?
+// TODO: Furher improve the energy sanity check: what if there are no creeps alive that could fill extensions - then
+//       online the spawners max energy (300) should be considered, as it is the only energy pool that fills up passively.
 function spawnAny(spawn, prefix, bodyParts, memoryoverride = null) {
     const name = prefix + Game.time
+	
+	// note: energyCapacityAvailable checks the total max energy, not the current energy in all spawns/extensions.
+	//       essentially this just returns whether the desired creep is theoretically possible at all, not if it is
+	//       possible at this moment.
+	const toUseBodyParts = spawn.room.energyCapacityAvailable < util.getBodyPartsEnergyCost(bodyParts) ? 
+	[WORK, CARRY, MOVE] : bodyParts;
+
 	const memorytouse = memoryoverride ? memoryoverride : {memory: {role: prefix, roomName: spawn.room.name, target: null}};
-    if(spawn.spawnCreep(bodyParts, name, memorytouse) == OK) {
+    if(spawn.spawnCreep(toUseBodyParts, name, memorytouse) == OK) {
         console.log("spawned creep of type " + prefix);   
         return true;
     }
