@@ -48,7 +48,9 @@ module.exports = {
         // console.log("free entities around " + object + " are " + _.map(free_ent, e => e.type) + " (full: " + JSON.stringify(free_ent))
         return _.map(free_ent, (e) => new RoomPosition(e.x, e.y, room.name))
     },
-	clamp = (num, min, max) => Math.min(Math.max(num, min), max),
+	clamp: function(num, min, max) {
+		return Math.min(Math.max(num, min), max)
+	},
 	calculateCreepSpeed: (creep) => {
 		/**
          * Each body part has its own physical weight: the more parts a creep bears, 
@@ -61,7 +63,7 @@ module.exports = {
 		 
 		// This function assumes movement on plain land
 		 
-		const speed = 0;
+		var speed = 0;
 		for (var part in creep.body) {
 			speed = part == MOVE ? speed + 2 : speed;
 		}
