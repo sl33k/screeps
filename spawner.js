@@ -36,7 +36,7 @@ function spawnBuilder (spawn, bodyParts = [WORK, CARRY, CARRY, MOVE]) {
     spawnAny(spawn, 'builder', bodyParts);
 }
 
-function spawnWorker (spawn, bodyParts = [WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE]) {
+function spawnWorker (spawn, bodyParts = [WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE]) {
     spawnAny(spawn, 'worker', bodyParts, {memory: {
 		role: 'worker', 
 		roomName: spawn.room.name, 
