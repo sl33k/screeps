@@ -42,37 +42,41 @@ module.exports = {
 		for (partIndex in bodyparts) {
 			// See https://screeps.fandom.com/wiki/Creep
 			switch(bodyparts[partIndex]) {
-				case 'WORK':
+				case 'work':
 					totalcost = totalcost + 100;
 					break;
 				
-				case 'CARRY':
+				case 'carry':
 					totalcost = totalcost + 50;
 					break;
 				
-				case 'MOVE':
+				case 'move':
 					totalcost = totalcost + 50;
 					break;
 					
-				case 'ATTACK':
+				case 'attack':
 					totalcost = totalcost + 80;
 					break;
 				
-				case 'RANGED_ATTACK':
+				case 'ranged_attack':
 					totalcost = totalcost + 150;
 					break;
 					
-				case 'HEAL':
+				case 'heal':
 					totalcost = totalcost + 250;
 					break;
 					
-				case 'TOUGH':
+				case 'tough':
 					totalcost = totalcost + 10;
 					break;
 					
-				case 'CLAIM':
+				case 'claim':
 					totalcost = totalcost + 600;
 					break;
+					
+				default:
+				    console.log("[ERROR] Incorrect bodypart given in util.js");
+				    break;
 			}
 		}
 		return totalcost;
