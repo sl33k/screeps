@@ -160,7 +160,7 @@ function performWork(creep) {
 			const buildError = creep.build(targetObject);
 			if (buildError == ERR_NOT_IN_RANGE) {
 				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}});					
-			} else if (buildError == ERR_INVALID_TARGET && targetObject.progress < targetObject.progressTotal) {
+			} else if (buildError == ERR_INVALID_TARGET && targetObject != null && targetObject.progress < targetObject.progressTotal) {
 				// This happens if another unit is on the constructionsite and is therefore preventing
 				// This consutrction from finishing
 				// Guess let's just wait?
@@ -214,7 +214,6 @@ function findJob(creep, preliminary = false) {
 		
 		var job = jobsToCheck[jobIndex];
 		
-		console.log("Creep " + creep.name + " checking for job: " + job);
 		var targets = [];
 		
 		switch (job) {
@@ -223,7 +222,6 @@ function findJob(creep, preliminary = false) {
 				for (var spawnerid in Game.spawns) {
 					if (Game.spawns[spawnerid].store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
 						targets.push(Game.spawns[spawnerid]);
-						console.log("Found spawner with free energy: " + Game.spawns[spawnerid].store.getFreeCapacity(RESOURCE_ENERGY));
 					}
 				}
 				break;
@@ -287,7 +285,6 @@ function findJob(creep, preliminary = false) {
 			default:
 				console.log("[ERROR] " +"Error occured in worker.js findJob - switch/case went into default");
 		}
-		console.log("Targets length: " + targets.length);
 		// Check if a suitable target has been found.
 		if (targets.length) {
 			if (!preliminary) {
