@@ -1,7 +1,10 @@
 const _ = require('lodash')
 
 // TODO: add capability of specifying custom memory for this function spawnAny(spawn, prefix, bodyparts, memory = null)
-function spawnAny(spawn, prefix, bodyParts) {
+// TODO: compare energy cost of unit based on bodyparts to the max available enegy in spawner and extensions.
+// 		 Either fail with warning, or default to a simple creep instead automatically
+// 		 This should be done in case an extension gets destroyed e.g. during an attack
+function spawnAny(spawn, prefix, bodyParts, memoryoverride = null) {
     const name = prefix + Game.time
 	const memorytouse = memoryoverride ? memoryoverride : {memory: {role: prefix, roomName: spawn.room.name, target: null}};
     if(spawn.spawnCreep(bodyParts, name, memorytouse) == OK) {
@@ -45,13 +48,13 @@ module.exports = {
     loop: (spawn) => {
         var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
 
-        if(harvesters.length < 2) {
+        if(harvesters.length < 1) {
             if(!spawnHarvester(spawn))
                 return;
         }
         var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
 
-        if(upgraders.length < 5) {
+        if(upgraders.length < 1) {
             if(!spawnUpgrader(spawn))
                 return;
         }
