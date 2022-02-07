@@ -4,11 +4,11 @@ const util = require('util')
 // Changing the order here will change the order in which jobs are checked
 // i.e. this allows for job prioritazion changes easily.
 // First entires are checked first.
-const jobsToCheck [ 'Spawners', 'Repair', 
-					'Extensions', 
-					'Towers', 'Building', 
-					'Cleaning', 'Upgrading', 
-					'Filling', 'Waiting' ]
+var jobsToCheck = new Array('Spawners', 'Repair', 
+							'Extensions', 
+							'Towers', 'Building', 
+							'Cleaning', 'Upgrading', 
+							'Filling', 'Waiting' );
 
 // Regardless of the task that shall be done, creeps must obtain energy first.
 function harvestEnergy(creep) {
@@ -17,7 +17,7 @@ function harvestEnergy(creep) {
 	
 	if (creep.memory.currentSpot != null) {
 		// Have a harvesting spot - go harvest
-		if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
+		if(creep.harvest(Game.getObjectById(creep.memory.currentSpot.source)) == ERR_NOT_IN_RANGE) {
 			const target = creep.memory.currentSpot.position;
 			creep.moveTo(new RoomPosition(target.x, target.y, target.roomName),{visualizePathStyle: {stroke: '#ffaa00'}})
 		}
@@ -25,7 +25,7 @@ function harvestEnergy(creep) {
 		// Supposed to go and harvest energy from a container, go do that
 		const err = creep.withdraw(Game.getObjectById(creep.memory.target), RESOURCE_ENERGY);
 		if (err == ERR_NOT_IN_RANGE) {
-			creep.moveTo(Game.getObjectById(creep.memory.target));
+			creep.moveTo(Game.getObjectById(creep.memory.target), {visualizePathStyle: {stroke: '#ffffff'}});
 		} else if (err == ERR_NOT_ENOUGH_RESOURCES){
 			// all resources have been consumed, but energy storage is not full yet
 			// Otherwise the creep would have switched to finding a job.
@@ -53,7 +53,7 @@ function harvestEnergy(creep) {
 				// No energy harvesting spot available, try to find an energy container
 				if (!findEnergyContainer(creep)) {
 					// No energy container available. Just move to spawn I guess
-					creep.moveTo(util.findFirstSpawn().pos);
+					creep.moveTo(util.findFirstSpawn().pos, {visualizePathStyle: {stroke: '#ffffff'}});
 				} else {
 				creep.memory.containerHarvesting = true;
 				}				
@@ -63,8 +63,10 @@ function harvestEnergy(creep) {
 }
 
 
+// TODO: Confirm this actually works? 
+// In live testing tombstones were gone but resources were still there. 
+// How does that work?
 function cleanTombstone(creep) {
-	
 	const err = creep.withdraw(Game.getObjectById(creep.memory.target), RESOURCE_ENERGY);
 	if (err == ERR_NOT_IN_RANGE) {
 		creep.moveTo(Game.getObjectById(creep.memory.target));
@@ -83,12 +85,13 @@ function cleanTombstone(creep) {
 function checkForTombstones(creep) {
 	const targets = creep.room.find(FIND_TOMBSTONES, {
 		filter: (tombstone) => {
-		const tombdistance = creep.findPathTo(tombstone).length;
+		const tombdistance = creep.pos.findPathTo(tombstone).length;
 		return (tombstone.store.getUsedCapacity(RESOURCE_ENERGY) != 0 &&
 			tombdistance < util.calculateCreepSpeed(creep) * tombstone.ticksToDecay );
 		}
 	});	
-	if (targets != null) {
+	if (targets.length) {
+		console.log("Found suitable tombstone to clean");
 		creep.memory.target = targets[0].id;
 		return 1;		
 	}
@@ -97,9 +100,8 @@ function checkForTombstones(creep) {
 
 
 function findEnergyContainer(creep) {
-	const targets = null;
 	// TODO: Filter out whichever is closest, instead of grabbing index 0
-	targets = creep.room.find(FIND_STRUCTURES, {
+	const targets = creep.room.find(FIND_STRUCTURES, {
 		filter: (structure) => {
 		return ((structure.structureType == STRUCTURE_CONTAINER || 
 				structure.structureType == STRUCTURE_STORAGE) &&
@@ -107,7 +109,7 @@ function findEnergyContainer(creep) {
 		}
 	});
 	
-	if (targets != null)
+	if (targets.length)
 	{
 		creep.memory.containerHarvesting = true;
 		creep.memory.target = targets[0].id;
@@ -120,54 +122,73 @@ function findEnergyContainer(creep) {
 
 function performWork(creep) {
 
-		switch (creep.memory.jobtype) {
-			// The following 4 share the same "action function"
-			case 'Spawners':
-			case 'Extensions':
-			case 'Towers':
-			case 'Filling':	
-				const err = creep.transfer(Game.getObjectById(creep.memory.target), RESOURCE_ENERGY);
-				if (err == ERR_NOT_IN_RANGE) {
-					creep.moveTo(Game.getObjectById(creep.memory.target))					
-				} else {
-					console.error("Unexpected error in worker.js TRANSFER JOB:" + err);
-				}
-				break;
-				
-			case 'Repair':
-				const err = creep.repair(Game.getObjectById(creep.memory.target));
-				if (err == ERR_NOT_IN_RANGE) {
-					creep.moveTo(Game.getObjectById(creep.memory.target))					
-				} else {
-					console.error("Unexpected error in worker.js REPAIR JOB:" + err);
-				}
-				break;	
-				
-			case 'Building':
-				const err = creep.build(Game.getObjectById(creep.memory.target));
-				if (err == ERR_NOT_IN_RANGE) {
-					creep.moveTo(Game.getObjectById(creep.memory.target))					
-				} else {
-					console.error("Unexpected error in worker.js BUILD JOB:" + err);
-				}
-				break;
-				
-			case 'Cleaning':
-				// never used.
-				break;
-				
-			case 'Upgrading':
-				const err = creep.upgradeController(Game.getObjectById(creep.memory.target));
-				if (err == ERR_NOT_IN_RANGE) {
-					creep.moveTo(Game.getObjectById(creep.memory.target))					
-				} else {
-					console.error("Unexpected error in worker.js UPGRADE JOB:" + err);
-				}
-				break;
-				
-			default:
-				console.error("Error occured in worker.js performWork - switch/case went into default");
-		}
+	const targetObject = Game.getObjectById(creep.memory.target);
+	switch (creep.memory.jobType) {
+		
+		// The following 4 share the same "action function"
+		case 'Spawners':
+		case 'Extensions':
+		case 'Towers':
+		case 'Filling':	
+			const transferError = creep.transfer(targetObject, RESOURCE_ENERGY);
+			if (transferError == ERR_NOT_IN_RANGE) {
+				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}})					
+			} else if (transferError == ERR_FULL) {
+				// This job is done - target is full
+				creep.memory.target = null;
+				creep.memory.jobType = null;
+			} else if (transferError != OK) {
+				console.log("[ERROR] " +"Unexpected error in worker.js TRANSFER JOB:" + transferError);
+			}
+			break;
+			
+		case 'Repair':
+			const repairError = creep.repair(targetObject);
+			if (repairError == ERR_NOT_IN_RANGE) {
+				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}})					
+			} else if (repairError != OK) {
+				console.log("[ERROR] " +"Unexpected error in worker.js REPAIR JOB:" + repairError);
+			}
+			if (targetObject.hits == targetObject.hitsMax) {
+				// This job is done - target has max health
+				creep.memory.target = null;
+				creep.memory.jobType = null;				
+			}
+			break;	
+			
+		case 'Building':
+			const buildError = creep.build(targetObject);
+			if (buildError == ERR_NOT_IN_RANGE) {
+				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}});					
+			} else if (buildError == ERR_INVALID && targetObject.progress < targetObject.progressTotal) {
+				// This happens if another unit is on the constructionsite and is therefore preventing
+				// This consutrction from finishing
+				// Guess let's just wait?
+			} else if (buildError != OK) {
+				console.log("[ERROR] " +"CRITICAL unexpected error in worker.js BUILD JOB:" + buildError);
+				console.log("[ERROR] THIS MUST BE FIXED IN CODE ASAP.");
+				console.log("[ERROR] TEMPORARY FIX: RESET JOB FOR CREEP " + creep.name);
+				creep.memory.target = null;
+				creep.memory.jobType = null;	
+			}
+			break;
+			
+		case 'Cleaning':
+			// never used.
+			break;
+			
+		case 'Upgrading':
+			const upgradeError = creep.upgradeController(targetObject);
+			if (upgradeError == ERR_NOT_IN_RANGE) {
+				creep.moveTo(targetObject, {visualizePathStyle: {stroke: '#ffffff'}})					
+			} else if (upgradeError != OK){
+				console.log("[ERROR] " +"Unexpected error in worker.js UPGRADE JOB:" + upgradeError);
+			}
+			break;
+			
+		default:
+			console.log("[ERROR] " +"Error occured in worker.js performWork - switch/case went into default");
+	}
 }
 
 
@@ -188,18 +209,21 @@ function findJob(creep, preliminary = false) {
 	// E.g., keep track of "currentBuilders", "currentHarvesters", "currentUpgraders" etc.
 	// in memory - reset at every loop in main.js? 
 	// Then read it here and make sure stuff is balanced a little
-	
-	jobsToCheck.forEach((job, i) => {
+
+	for (jobIndex in jobsToCheck) {
 		
-		var targets = null;
-		const jobType = job;
+		var job = jobsToCheck[jobIndex];
+		
+		console.log("Creep " + creep.name + " checking for job: " + job);
+		var targets = [];
 		
 		switch (job) {
 			case 'Spawners':
 				// Check spawners for energy need
-				for (const spawner in Game.spawns) {
-					if (spawner.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-						targets.push(spawner);
+				for (var spawnerid in Game.spawns) {
+					if (Game.spawns[spawnerid].store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+						targets.push(Game.spawns[spawnerid]);
+						console.log("Found spawner with free energy: " + Game.spawns[spawnerid].store.getFreeCapacity(RESOURCE_ENERGY));
 					}
 				}
 				break;
@@ -257,26 +281,28 @@ function findJob(creep, preliminary = false) {
 				
 			case 'Waiting':
 				// Walk towards spawn while checking for something to do
-				creep.moveTo(util.findFirstSpawn().pos);
+				creep.moveTo(util.findFirstSpawn().pos, {visualizePathStyle: {stroke: '#ffffff'}});
 				break;
 				
 			default:
-				console.error("Error occured in worker.js findJob - switch/case went into default");
+				console.log("[ERROR] " +"Error occured in worker.js findJob - switch/case went into default");
 		}
-		
+		console.log("Targets length: " + targets.length);
 		// Check if a suitable target has been found.
-		if (targets != null) {
+		if (targets.length) {
 			if (!preliminary) {
 				creep.memory.target = targets[0].id;
-				creep.memory.jobtype = job;
+				creep.memory.jobType = job;
 			} else { 
 				// creep.memory.prelimTarget = targets[0].id;
 				// TODO: Implement this or take it out
 			}
-			
-			return;
+
+			break;
 		}
+
 	}
+
 }
 
 
@@ -284,6 +310,8 @@ function findJob(creep, preliminary = false) {
 // There's definitely some "better safe than sorry" re-setting and if() here.
 var roleWorker = {
 	run: function(creep) {
+		
+		const energyManager = new EnergyManager(creep.room);
 		
 		if (!creep.memory.harvesting && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
 			// Starting energy harvesting. Reset job vars and set harvesting flag:
@@ -315,13 +343,15 @@ var roleWorker = {
 			// Release harvesting spot if one was reserved
 			if (creep.memory.currentSpot != null) { 
 				energyManager.release(creep.memory.currentSpot);
+				creep.memory.currentSpot = null;
 			}
 			
 			findJob(creep);
 		} else if (!creep.memory.harvesting && creep.memory.target != null && creep.memory.jobType != null) {
 			performWork(creep);
 		} else if (!creep.memory.harvesting) {
-			console.error("Worker.js encountered unexpected combination of flags/states. No recovery...");
+			console.log("[ERROR] " +"Worker.js encountered unexpected combination of flags/states. No recovery...");
+		}
     }
 };
 
