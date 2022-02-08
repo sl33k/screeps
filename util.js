@@ -87,9 +87,9 @@ module.exports = {
         const y = object.pos.y
         const room = object.room
         const ent = room.lookAtArea(y-offset, x-offset, y+offset, x+offset, true);
-       //  console.log("entities around " + object + " are " + _.map(ent, (e) => e.type))
-        const free_ent = _.filter(ent, (e) => e.type == 'terrain' && e.terrain != 'wall')
-        // console.log("free entities around " + object + " are " + _.map(free_ent, e => e.type) + " (full: " + JSON.stringify(free_ent))
+        //console.log("entities around " + object + " are " + _.map(ent, (e) => e.type))
+        const free_ent = _.filter(ent, (e) => (e.type == 'terrain' && e.terrain != 'wall') || (e.type == 'structure' && e.structure.structureType == 'road')) 
+        //console.log("free entities around " + object + " are " + _.map(free_ent, e => e.type) + " (full: " + JSON.stringify(free_ent))
         return _.map(free_ent, (e) => new RoomPosition(e.x, e.y, room.name))
     },
 	clamp: function(num, min, max) {
