@@ -16,10 +16,13 @@ function harvestEnergy(creep) {
 	const energyManager = new EnergyManager(creep.room);
 	
 	if (creep.memory.currentSpot != null) {
+		const target = creep.memory.currentSpot.position;
 		// Have a harvesting spot - go harvest
-		if(creep.harvest(Game.getObjectById(creep.memory.currentSpot.source)) == ERR_NOT_IN_RANGE) {
-			const target = creep.memory.currentSpot.position;
+		if(creep.pos.x != target.x || creep.pos.y != target.y) {
 			creep.moveTo(new RoomPosition(target.x, target.y, target.roomName),{visualizePathStyle: {stroke: '#ffaa00'}})
+		} else
+		{
+			creep.harvest(Game.getObjectById(creep.memory.currentSpot.source));
 		}
 	} else if (creep.memory.containerHarvesting == true) {
 		// Supposed to go and harvest energy from a container, go do that
@@ -165,7 +168,7 @@ function performWork(creep) {
 			case 'Building':
 				// Temporary fix to ensure creeps move closer to target
 				// TODO: improve
-				if (creep.pos.getRangeTo(targetObject) <= 1) {
+				if (creep.pos.getRangeTo(targetObject) <= 2) {
 					const buildError = creep.build(targetObject);
 					if (buildError == ERR_NOT_IN_RANGE) {
 						console.log("[ERROR] " +"Distance of building creep to site is too large, but why? Error:" + buildError);				

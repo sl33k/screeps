@@ -24,19 +24,19 @@ function spawnAny(spawn, prefix, bodyParts, memoryoverride = null) {
     }
 }
 
-function spawnHarvester (spawn, bodyParts = [WORK, WORK, CARRY, CARRY, MOVE]) {
+function spawnHarvester (spawn, bodyParts = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE]) {
     spawnAny(spawn, 'harvester', bodyParts);
 }
 
-function spawnUpgrader (spawn, bodyParts = [WORK, CARRY, CARRY, CARRY, MOVE, MOVE]) {
+function spawnUpgrader (spawn, bodyParts = [WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]) {
     spawnAny(spawn, 'upgrader', bodyParts);
 }
 
-function spawnBuilder (spawn, bodyParts = [WORK, CARRY, CARRY, MOVE]) {
+function spawnBuilder (spawn, bodyParts = [WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]) {
     spawnAny(spawn, 'builder', bodyParts);
 }
 
-function spawnWorker (spawn, bodyParts = [WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE]) {
+function spawnWorker (spawn, bodyParts = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE]) {
     spawnAny(spawn, 'worker', bodyParts, {memory: {
 		role: 'worker', 
 		roomName: spawn.room.name, 
@@ -62,21 +62,21 @@ module.exports = {
         }
         var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
 
-        if(upgraders.length < 2) {
+        if(upgraders.length < 1) {
             if(!spawnUpgrader(spawn))
                 return;
         }
 		
 		var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
 
-        if(builders.length < 0) {
+        if(builders.length < 1) {
             if(!spawnBuilder(spawn))
                 return;
         }
 		
 		var workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
 
-        if(workers.length < 3) {
+        if(workers.length < 7) {
             if(!spawnWorker(spawn))
                 return;
         }
