@@ -20,12 +20,11 @@ var roleBuilder = {
 				return (!util.isTargetHealedEnough(structure));
 				}
 			});
+
 			if (targets.length) {
-				// This is a temporary fix to avoid builders from occupying a harvesting spot if possible while repairing
-				// TODO: Improve...
-				if(creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}}) == OK) {
-					creep.repair(targets[0]);
-					}
+				if(creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+					creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+				} 
 			} else { 
 				targets = creep.room.find(FIND_CONSTRUCTION_SITES);
 				if(targets.length) {

@@ -38,12 +38,14 @@ module.exports = {
 		}
 	},
 	isTargetHealedEnough: (structure) => {
-    return (structure.structureType != STRUCTURE_WALL && 
-							structure.structureType != STRUCTURE_RAMPART && 
-							structure.hits > (structure.hitsMax - 100)) || 
-							((structure.structureType == STRUCTURE_WALL || 
-							structure.structureType == STRUCTURE_RAMPART) && 
-							structure.hits > Math.min((structure.hitsMax - 100),50000));     
+		// Apparently the naturally constructed walls have a defined hitsMax, 
+		// are defined objects etc, but have undefined .hits wtf man
+		return structure.hits == undefined || (structure.structureType != STRUCTURE_WALL && 
+			structure.structureType != STRUCTURE_RAMPART && 
+			structure.hits > (structure.hitsMax - 100)) || 
+			((structure.structureType == STRUCTURE_WALL || 
+			structure.structureType == STRUCTURE_RAMPART) && 
+			structure.hits > Math.min((structure.hitsMax - 100),50000));     
 
 	},
 	getBodyPartsEnergyCost: (bodyparts) => {
