@@ -56,7 +56,7 @@ module.exports = {
     loop: (spawn) => {
         var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
 
-        if(harvesters.length < 1) {
+        if(harvesters.length < 2) {
             if(!spawnHarvester(spawn))
                 return;
         }
@@ -76,7 +76,7 @@ module.exports = {
 		
 		var workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
 
-        if(workers.length < 5) {
+        if(workers.length < 6) {
             if(!spawnWorker(spawn))
                 return;
         }

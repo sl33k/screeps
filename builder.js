@@ -17,19 +17,21 @@ var roleBuilder = {
 	    if(creep.memory.building) {
 			var targets = creep.room.find(FIND_STRUCTURES, {
 				filter: (structure) => {
-				return (!util.isTargetHealedEnough(structure));
+				return (!util.isTargetHealedEnough(structure, true));
 				}
 			});
 
 			if (targets.length) {
-				if(creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
-					creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+				var repairObj = Game.getObjectById(util.getClosestTargetID(creep,targets));
+				if(creep.repair(repairObj) == ERR_NOT_IN_RANGE) {
+					creep.moveTo(repairObj, {visualizePathStyle: {stroke: '#ffffff'}});
 				} 
 			} else { 
 				targets = creep.room.find(FIND_CONSTRUCTION_SITES);
 				if(targets.length) {
-					if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-						creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+					var buildObj = Game.getObjectById(util.getClosestTargetID(creep,targets));
+					if(creep.build(buildObj) == ERR_NOT_IN_RANGE) {
+						creep.moveTo(buildObj, {visualizePathStyle: {stroke: '#ffffff'}});
 					}
 				} else {
 					creep.moveTo(util.findFirstSpawn().pos, {visualizePathStyle: {stroke: '#ffffff'}})

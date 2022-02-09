@@ -37,16 +37,39 @@ module.exports = {
 			}
 		}
 	},
-	isTargetHealedEnough: (structure) => {
+	isTargetHealedEnough: (structure, isBuilder = false) => {
 		// Apparently the naturally constructed walls have a defined hitsMax, 
 		// are defined objects etc, but have undefined .hits wtf man
-		return structure.hits == undefined || (structure.structureType != STRUCTURE_WALL && 
+		const extraRoadHealth = isBuilder ? 1000 : 0;
+		return structure.hits == undefined || 
+			(structure.structureType != STRUCTURE_WALL && 
 			structure.structureType != STRUCTURE_RAMPART && 
 			structure.hits > (structure.hitsMax - 100)) || 
 			((structure.structureType == STRUCTURE_WALL || 
 			structure.structureType == STRUCTURE_RAMPART) && 
-			structure.hits > Math.min((structure.hitsMax - 100),50000));     
+			structure.hits > Math.min((structure.hitsMax - 100),50000)) ||
+			(structure.structureType == STRUCTURE_ROAD && structure.hits > (3000 + extraRoadHealth)) ||
+			(structure.structureType == STRUCTURE_CONTAINER && structure.hits > 190000);     
 
+	},
+	getClosestTargetID: (creep, targetArray) => {
+	
+	var targetID = targetArray[0].id;
+	var mindist = 999;
+	var currentDist = 999;
+
+	
+	for (index in targetArray) {
+
+		currentDist = creep.pos.getRangeTo(targetArray[index]);
+		
+		if (mindist > currentDist) {
+			mindist = currentDist;
+			targetID = targetArray[index].id;
+		}
+	}
+	
+	return targetID;
 	},
 	getBodyPartsEnergyCost: (bodyparts) => {
 		var totalcost = 0;

@@ -52,8 +52,9 @@ var roleHarvester = {
                     }
             });
             if(targets.length > 0) {
-                if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+				const targetObj = Game.getObjectById(util.getClosestTargetID(creep,targets));
+				if(creep.transfer(targetObj, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(targetObj, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             } else {
                 creep.moveTo(util.findFirstSpawn().pos, {visualizePathStyle: {stroke: '#ffffff'}})

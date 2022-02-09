@@ -307,7 +307,7 @@ function findJob(creep, preliminary = false) {
 		if (targets.length) {
 			if (!preliminary) {
 				if (targets.length > 1) {
-					creep.memory.target = getClosestTargetID(creep, targets);
+					creep.memory.target = util.getClosestTargetID(creep, targets);
 				} else {
 					creep.memory.target = targets[0].id;					
 				}
@@ -325,25 +325,7 @@ function findJob(creep, preliminary = false) {
 
 }
 
-function getClosestTargetID(creep, targetArray) {
-	
-	var targetID = targetArray[0].id;
-	var mindist = 999;
-	var currentDist = 999;
 
-	
-	for (index in targetArray) {
-
-		currentDist = creep.pos.getRangeTo(targetArray[index]);
-		
-		if (mindist > currentDist) {
-			mindist = currentDist;
-			targetID = targetArray[index].id;
-		}
-	}
-	
-	return targetID;
-}
 
 
 // TODO: go through this and think a bit about the various flags/states 
