@@ -37,6 +37,15 @@ module.exports = {
 			}
 		}
 	},
+	isTargetHealedEnough: (structure) => {
+    return (structure.structureType != STRUCTURE_WALL && 
+							structure.structureType != STRUCTURE_RAMPART && 
+							structure.hits > (structure.hitsMax - 100)) || 
+							((structure.structureType == STRUCTURE_WALL || 
+							structure.structureType == STRUCTURE_RAMPART) && 
+							structure.hits > Math.min((structure.hitsMax - 100),50000));     
+
+	},
 	getBodyPartsEnergyCost: (bodyparts) => {
 		var totalcost = 0;
 		for (partIndex in bodyparts) {

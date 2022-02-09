@@ -17,7 +17,7 @@ var roleBuilder = {
 	    if(creep.memory.building) {
 			var targets = creep.room.find(FIND_STRUCTURES, {
 				filter: (structure) => {
-				return (structure.hits < structure.hitsMax);
+				return (!util.isTargetHealedEnough(structure));
 				}
 			});
 			if (targets.length) {

@@ -158,7 +158,7 @@ function performWork(creep) {
 				} else if (repairError != OK) {
 					console.log("[ERROR] " +"Unexpected error in worker.js REPAIR JOB:" + repairError);
 				}
-				if (isTargetHealedEnough(targetObject)) {
+				if (util.isTargetHealedEnough(targetObject)) {
 					// This job is done - target has max health
 					creep.memory.target = null;
 					creep.memory.jobType = null;	
@@ -208,20 +208,6 @@ function performWork(creep) {
 	}
 }
 
-function isTargetHealedEnough(structure) {
-    return (structure.structureType != STRUCTURE_WALL && 
-							structure.structureType != STRUCTURE_RAMPART && 
-							structure.hits > (structure.hitsMax - 100)) || ((
-							structure.structureType == STRUCTURE_WALL || 
-							structure.structureType == STRUCTURE_RAMPART) && 
-							structure.hits > Math.min((structure.hitsMax - 100),50000));    
-    			            structure.hits < (structure.hitsMax - 100)) || ((
-							structure.structureType == STRUCTURE_WALL || 
-    			            structure.structureType == STRUCTURE_RAMPART) && 
-                            structure.hits < Math.max((structure.hitsMax - 100),50000));    
-
-}
-
 
 /**
  * Runs on a creep that already has energy
@@ -260,13 +246,7 @@ function findJob(creep, preliminary = false) {
 			case 'Repair':
 			    targets = creep.room.find(FIND_STRUCTURES, {
 				    filter: (structure) => { 
-        				// Limits the health of structures and ramparts to 50k for now...
-        				return (structure.structureType != STRUCTURE_WALL && 
-        			            structure.structureType != STRUCTURE_RAMPART && 
-        			            structure.hits < (structure.hitsMax - 100)) ||
-                            ((  structure.structureType == STRUCTURE_WALL || 
-        			            structure.structureType == STRUCTURE_RAMPART) && 
-                                structure.hits < Math.min((structure.hitsMax - 100),50000));
+        				return !util.isTargetHealedEnough(structure);
 				    }
 			    });	
 
