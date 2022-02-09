@@ -4,10 +4,10 @@ const util = require('util')
 // Changing the order here will change the order in which jobs are checked
 // i.e. this allows for job prioritazion changes easily.
 // First entires are checked first.
-var jobsToCheck = new Array('Spawners', 'Repair', 
+var jobsToCheck = new Array('Spawners', 
 							'Extensions', 
 							'Towers', 'Building', 
-							'Cleaning', 'Upgrading', 
+							'Repair', 'Cleaning', 'Upgrading', 
 							'Filling', 'Waiting' );
 
 // Regardless of the task that shall be done, creeps must obtain energy first.
@@ -16,10 +16,13 @@ function harvestEnergy(creep) {
 	const energyManager = new EnergyManager(creep.room);
 	
 	if (creep.memory.currentSpot != null) {
+		const target = creep.memory.currentSpot.position;
 		// Have a harvesting spot - go harvest
-		if(creep.harvest(Game.getObjectById(creep.memory.currentSpot.source)) == ERR_NOT_IN_RANGE) {
-			const target = creep.memory.currentSpot.position;
+		if(creep.pos.x != target.x || creep.pos.y != target.y) {
 			creep.moveTo(new RoomPosition(target.x, target.y, target.roomName),{visualizePathStyle: {stroke: '#ffaa00'}})
+		} else
+		{
+			creep.harvest(Game.getObjectById(creep.memory.currentSpot.source));
 		}
 	} else if (creep.memory.containerHarvesting == true) {
 		// Supposed to go and harvest energy from a container, go do that
@@ -43,7 +46,6 @@ function harvestEnergy(creep) {
 		cleanTombstone(creep);
 	} else {
 		// No energy source has been selected yet.
-		
 		// Check tombstones first, as they are time critical
 		if (!checkForTombstones(creep)) {
 			// No tombstones are available, check for energy sources next
@@ -156,17 +158,18 @@ function performWork(creep) {
 				} else if (repairError != OK) {
 					console.log("[ERROR] " +"Unexpected error in worker.js REPAIR JOB:" + repairError);
 				}
-				if (targetObject.hits == targetObject.hitsMax) {
+
+				if (isTargetHealedEnough(targetObject)) {
 					// This job is done - target has max health
 					creep.memory.target = null;
-					creep.memory.jobType = null;				
+					creep.memory.jobType = null;	
 				}
 				break;	
 				
 			case 'Building':
 				// Temporary fix to ensure creeps move closer to target
 				// TODO: improve
-				if (creep.pos.getRangeTo(targetObject) <= 1) {
+				if (creep.pos.getRangeTo(targetObject) <= 2) {
 					const buildError = creep.build(targetObject);
 					if (buildError == ERR_NOT_IN_RANGE) {
 						console.log("[ERROR] " +"Distance of building creep to site is too large, but why? Error:" + buildError);				
@@ -206,6 +209,15 @@ function performWork(creep) {
 	}
 }
 
+function isTargetHealedEnough(structure) {
+    return (structure.structureType != STRUCTURE_WALL && 
+    			            structure.structureType != STRUCTURE_RAMPART && 
+    			            structure.hits > (structure.hitsMax - 100)) ||
+    			        ((  structure.structureType == STRUCTURE_WALL || 
+    			            structure.structureType == STRUCTURE_RAMPART) && 
+                            structure.hits > Math.min((structure.hitsMax - 100),50000));    
+}
+
 
 /**
  * Runs on a creep that already has energy
@@ -242,11 +254,18 @@ function findJob(creep, preliminary = false) {
 				break;
 			
 			case 'Repair':
-				targets = creep.room.find(FIND_STRUCTURES, {
-					filter: (structure) => {
-					return (structure.hits < structure.hitsMax);
-					}
-				});					
+			    targets = creep.room.find(FIND_STRUCTURES, {
+				    filter: (structure) => { 
+        				// Limits the health of structures and ramparts to 50k for now...
+        				return (structure.structureType != STRUCTURE_WALL && 
+        			            structure.structureType != STRUCTURE_RAMPART && 
+        			            structure.hits < (structure.hitsMax - 100)) ||
+                            ((  structure.structureType == STRUCTURE_WALL || 
+        			            structure.structureType == STRUCTURE_RAMPART) && 
+                                structure.hits < Math.min((structure.hitsMax - 100),50000));
+				    }
+			    });	
+
 				break;			
 				
 			case 'Extensions':
@@ -303,7 +322,12 @@ function findJob(creep, preliminary = false) {
 		// Check if a suitable target has been found.
 		if (targets.length) {
 			if (!preliminary) {
-				creep.memory.target = targets[0].id;
+				if (targets.length > 1) {
+					creep.memory.target = getClosestTargetID(creep, targets);
+				} else {
+					creep.memory.target = targets[0].id;					
+				}
+
 				creep.memory.jobType = job;
 			} else { 
 				// creep.memory.prelimTarget = targets[0].id;
@@ -315,6 +339,26 @@ function findJob(creep, preliminary = false) {
 
 	}
 
+}
+
+function getClosestTargetID(creep, targetArray) {
+	
+	var targetID = targetArray[0].id;
+	var mindist = 999;
+	var currentDist = 999;
+
+	
+	for (index in targetArray) {
+
+		currentDist = creep.pos.getRangeTo(targetArray[index]);
+		
+		if (mindist > currentDist) {
+			mindist = currentDist;
+			targetID = targetArray[index].id;
+		}
+	}
+	
+	return targetID;
 }
 
 

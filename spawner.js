@@ -62,21 +62,21 @@ module.exports = {
         }
         var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
 
-        if(upgraders.length < 2) {
+        if(upgraders.length < 1) {
             if(!spawnUpgrader(spawn))
                 return;
         }
 		
 		var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
 
-        if(builders.length < 0) {
+        if(builders.length < 1) {
             if(!spawnBuilder(spawn))
                 return;
         }
 		
 		var workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
 
-        if(workers.length < 3) {
+        if(workers.length < 5) {
             if(!spawnWorker(spawn))
                 return;
         }
