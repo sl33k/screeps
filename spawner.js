@@ -24,19 +24,19 @@ function spawnAny(spawn, prefix, bodyParts, memoryoverride = null) {
     }
 }
 
-function spawnHarvester (spawn, bodyParts = [WORK, WORK, CARRY, CARRY, MOVE]) {
+function spawnHarvester (spawn, bodyParts = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE]) {
     spawnAny(spawn, 'harvester', bodyParts);
 }
 
-function spawnUpgrader (spawn, bodyParts = [WORK, CARRY, CARRY, CARRY, MOVE, MOVE]) {
+function spawnUpgrader (spawn, bodyParts = [WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]) {
     spawnAny(spawn, 'upgrader', bodyParts);
 }
 
-function spawnBuilder (spawn, bodyParts = [WORK, CARRY, CARRY, MOVE]) {
+function spawnBuilder (spawn, bodyParts = [WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]) {
     spawnAny(spawn, 'builder', bodyParts);
 }
 
-function spawnWorker (spawn, bodyParts = [WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE]) {
+function spawnWorker (spawn, bodyParts = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE]) {
     spawnAny(spawn, 'worker', bodyParts, {memory: {
 		role: 'worker', 
 		roomName: spawn.room.name, 
