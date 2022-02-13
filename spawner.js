@@ -24,7 +24,11 @@ function spawnAny(spawn, prefix, bodyParts, memoryoverride = null) {
     }
 }
 
-function spawnHarvester (spawn, bodyParts = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE]) {
+function spawnHarvester (spawn, bodyParts = [WORK, WORK, WORK,  CARRY, CARRY, CARRY, MOVE, MOVE, MOVE]) {
+    spawnAny(spawn, 'harvester', bodyParts);
+}
+
+function spawnCheapHarvester (spawn, bodyParts = [WORK, CARRY, CARRY, MOVE, MOVE]) {
     spawnAny(spawn, 'harvester', bodyParts);
 }
 
@@ -54,7 +58,18 @@ module.exports = {
     spawnUpgrader: spawnUpgrader,
 	spawnBuilder: spawnBuilder,
     loop: (spawn) => {
+        
         var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+		var workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
+
+        // No units available that could fill extensions
+        // If code reaches here, means no creep could be spawned
+        // Spawn a max 300 energy unit instead!
+        if (workers.length == 0 && harvesters.length == 0) {
+
+            if (!spawnCheapHarvester(spawn))
+                return;
+        }
 
         if(harvesters.length < 2) {
             if(!spawnHarvester(spawn))
@@ -73,12 +88,11 @@ module.exports = {
             if(!spawnBuilder(spawn))
                 return;
         }
-		
-		var workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
 
-        if(workers.length < 6) {
+        if(workers.length < 5) {
             if(!spawnWorker(spawn))
                 return;
         }
+
     }
 }
